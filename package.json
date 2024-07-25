@@ -1,0 +1,15 @@
+{
+  "name": "webcamstream",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "server": "node --watch src/server.js",
+    "web": "npx http-server .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
