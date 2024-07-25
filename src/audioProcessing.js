@@ -1,34 +1,40 @@
-import { createReadStream, stat, readdirSync } from 'node:fs'
+import { stat, readdirSync } from 'node:fs'
+import { mkdir, truncate } from 'node:fs/promises'
+import { spawn } from 'node:child_process'
 
-const playlistPath = './assets/rock/'
+const playlistPath = 'assets/rock/'
 
 function readDir () {
     return readdirSync(`${playlistPath}`)
 }
 
-console.log('arquivos: ', readDir()) 
+const fileNameArray = readDir()
 
-function randomFileInPlaylist() {
-    let randomNumber = Math.floor(Math.random() * 2)
-    return 1
+async function processSongs() 
+{
+    //Cria uma pasta para as musicas tratadas
+    await mkdir(`${playlistPath}/processedSongs`, {recursive: true})
+
+    //A cada musica ele trata ela e joga numa pasta de musicas tratadas
+    fileNameArray.forEach((fileName) => {
+        const songPath = playlistPath
+    
+        const ffmpegProcess = spawn('ffmpeg', [
+            '-i', songPath + fileName,
+            '-c:a', 'aac',
+            '-b:a', '128k',
+            '-movflags', 'faststart',
+            `${songPath + 'processedSongs/' +  fileName.replace("mp3", "mp4")}`,
+        ], { stdio: ['pipe', 'inherit', 'inherit']})
+
+        ffmpegProcess.stdin.write('Y\n')
+        // console.log('[FILE IN PROCESS]: ', `${songPath}`)
+        // console.log('[CREATED]: ', `assets/rock/processedSongs/${fileName}`)
+    })
+
+    ffmpegProcess.stdout.destroy()
+    ffmpegProcess.stdin.destroy()
+    ffmpegProcess.kill()
 }
 
-let randomNumber = randomFileInPlaylist()
-
-console.log('RANDOOOM: ', `${randomNumber}`)
-console.log('Song:', readDir()[1]) 
-let audioPath = `${playlistPath}${readDir()[randomNumber]}`
-
-const audioStream = createReadStream(audioPath)
-
-//O tamanho do arquivo é medido em bytes
-// stat(audioPath, (err, stats) => {
-//     err ? console.log('[[[[ERROR]]]]: ', err) : ''
-//     stats ? console.log('Audio information: ', stats) : ''
-// })
-
-// glob('*.js', (err, matches) => {
-//     console.log('Matches: ', matches)
-// })
-
-export { audioStream }
+await processSongs()

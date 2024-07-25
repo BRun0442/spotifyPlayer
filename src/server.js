@@ -1,5 +1,6 @@
 import { createServer } from 'node:http'
-import { audioStream } from './audioProcessing.js'
+//import './audioProcessing.js'
+import { getAudioStream } from './audioPlayer.js'
 
 const port = 3000
 
@@ -16,10 +17,11 @@ createServer(async (request, response) => {
     }
 
     response.writeHead(200, {
-        'Content-type': 'audio/mp3'
+        'Content-type': 'audio/mp4'
     })
 
     //Le o arquivo de audio e manda por demanda para o front
+    const audioStream = await getAudioStream();
     audioStream.pipe(response)
 
     })
